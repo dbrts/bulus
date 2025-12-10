@@ -10,7 +10,7 @@ load_dotenv(dotenv_path=env_path)
 
 # 2. Ключи и Модели
 API_KEY = os.getenv("OPENAI_API_KEY")
-MODEL_NAME = "gpt-5-mini"  # Или gpt-4o-mini
+MODEL_NAME = os.getenv("OPENAI_MODEL_NAME", "gpt-5-mini")  # Или gpt-4o-mini
 
 # 3. Настройки хранилища
 BULUS_DIR = BASE_DIR / ".bulus"

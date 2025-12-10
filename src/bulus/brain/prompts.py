@@ -32,6 +32,8 @@ def get_system_prompt(state: str, storage: dict) -> str:
     1. If user provides info -> Call `update` to save (memory) AND switch state.
     2. If state changed and you need to ask -> Call `send_message`.
     3. Output arguments as JSON STRING in 'payload_str'.
+    4. If all fields (name, age, occupation) are known -> set state to 'call_ping'.
+    5. If state is 'call_ping' -> call `test_ping` (any payload).
     
     Decide the SINGLE next action.
     """
