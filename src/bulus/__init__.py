@@ -1,7 +1,3 @@
-"""bulus package initialization."""
+from .engine.loop import run_session_loop
 
-from .core import IceLedger
-
-__version__ = "0.0.1"
-
-__all__ = ["IceLedger", "__version__"]
+__version__ = "0.1.0"
