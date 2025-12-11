@@ -8,8 +8,9 @@ from bulus.core.states import AgentState
 client = OpenAI(api_key=API_KEY) if API_KEY else None
 
 
-def stateless_brain(ice_history: IceHistory) -> Action:
-    if not client:
+def stateless_brain(ice_history: IceHistory, client_override=None) -> Action:
+    llm_client = client_override or client
+    if not llm_client:
         return Action(tool_name="error", payload_str="{}", thought="No API Key in .env")
 
     # 1. Восстановление контекста
@@ -54,7 +55,7 @@ def stateless_brain(ice_history: IceHistory) -> Action:
 
     # 3. Вызов API
     try:
-        completion = client.beta.chat.completions.parse(
+        completion = llm_client.beta.chat.completions.parse(
             model=MODEL_NAME,
             messages=[
                 {"role": "system", "content": get_system_prompt(current_state, current_storage)},

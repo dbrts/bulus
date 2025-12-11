@@ -5,31 +5,11 @@ from bulus.brain import worker as brain_worker
 from bulus.core.schemas import Action
 from bulus.core.states import AgentState
 from bulus.runner.tools import apply_update
+from tests.utils import make_fake_client
 
 
 def make_action(tool_name: str, payload: dict, thought: str) -> Action:
     return Action(tool_name=tool_name, payload_str=json.dumps(payload, ensure_ascii=False), thought=thought)
-
-
-class _FakeResponse:
-    def __init__(self, action: Action):
-        self.choices = [type("Choice", (), {"message": type("Msg", (), {"parsed": action})()})()]
-
-
-class _FakeCompletions:
-    def __init__(self, actions_queue: List[Action]):
-        self._queue = list(actions_queue)
-
-    def parse(self, **kwargs):
-        if not self._queue:
-            raise AssertionError("No actions left in fake completions queue")
-        action = self._queue.pop(0)
-        return _FakeResponse(action)
-
-
-class _FakeClient:
-    def __init__(self, actions_queue: List[Action]):
-        self.beta = type("Beta", (), {"chat": type("Chat", (), {"completions": _FakeCompletions(actions_queue)})()})()
 
 
 def test_multi_turn_brain_flow(monkeypatch):
@@ -41,7 +21,7 @@ def test_multi_turn_brain_flow(monkeypatch):
             "update", {"state": "call_ping", "memory": {"occupation": "AI инженер"}}, "Got occupation, ready to ping"
         ),
     ]
-    monkeypatch.setattr(brain_worker, "client", _FakeClient(fake_actions))
+    monkeypatch.setattr(brain_worker, "client", make_fake_client(fake_actions))
 
     ice = [
         (t0 + 1, "send_message", {"text": "Как тебя зовут?"}, AgentState.ASK_NAME.value, {}, "Start"),
@@ -107,7 +87,7 @@ def test_one_shot_and_next_step(monkeypatch):
         ),
         make_action("test_ping", {"payload": "ping"}, "Trigger ping"),
     ]
-    monkeypatch.setattr(brain_worker, "client", _FakeClient(fake_actions))
+    monkeypatch.setattr(brain_worker, "client", make_fake_client(fake_actions))
 
     ice = [
         (t0 + 1, "send_message", {"text": "Привет! Представься для пинга."}, AgentState.HELLO.value, {}, "Init"),
