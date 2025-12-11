@@ -15,32 +15,32 @@ def _load_template() -> str:
     template_path = Path(__file__).parent / "template.html"
     return template_path.read_text(encoding="utf-8")
 
-def show_bulus_trace(history: List[Tuple[float, str, Dict[str, Any], str, Dict[str, Any], str | None]], height: int = 600):
+def show_bulus_trace(ice: List[Tuple[float, str, Dict[str, Any], str, Dict[str, Any], str | None]], height: int = 600):
     """
     Renders the Bulus Time Travel Viewer in a Jupyter Notebook.
     
     Args:
-        history: The IceHistory list from bulus.
+        ice: The IceHistory list from bulus.
         height: Height of the viewer in pixels.
     """
     if HTML is None:
         print("Error: IPython is not installed. Cannot render HTML in this environment.")
         return
 
-    # Serialize history to JSON safely
+    # Serialize ice to JSON safely
     # We might need to handle non-serializable objects if they sneak into storage, 
     # but Bulus core schemas seem to enforce dicts/strings.
     try:
-        json_history = json.dumps(history)
+        json_ice = json.dumps(ice)
     except TypeError as e:
         # Fallback for safe serialization
-        json_history = json.dumps(history, default=str)
+        json_ice = json.dumps(ice, default=str)
 
     html_template = _load_template()
     
     # Inject data into the script tag
-    injection_code = f"var historyData = {json_history};"
-    final_html = html_template.replace("var historyData = []; // DATA_INJECTION_POINT", injection_code)
+    injection_code = f"var iceData = {json_ice};"
+    final_html = html_template.replace("var iceData = []; // DATA_INJECTION_POINT", injection_code)
 
     # Wrap in iframe-like container if needed, but direct HTML usually works better 
     # for sizing in modern Jupyter.
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     t0 = time.time()
     
     # 1. Start: Agent asks name
-    h = [
+    ice_entries = [
         (t0 + 1, "send_message", {"text": "Как тебя зовут?"}, "ask_name", {}, "Start session"),
         (t0 + 2, "user_said", "Меня зовут Семен", "ask_name", {}, None),
     ]
@@ -76,35 +76,35 @@ if __name__ == "__main__":
     # 2. Brain decides to update state -> ask_age
     # Note: 'update' tool entry shows the RESULTING state/storage in the tuple slots 3 & 4
     mem_v1 = {"name": "Semen"}
-    h.append(
+    ice_entries.append(
         (t0 + 3, "update", {"state": "ask_age", "memory": mem_v1}, "ask_age", mem_v1, "User provided name. Moving to ask_age.")
     )
 
     # 3. Agent asks age
-    h.append(
+    ice_entries.append(
         (t0 + 4, "send_message", {"text": "Приятно познакомиться, Семен! Сколько тебе лет?"}, "ask_age", mem_v1, "Ask age")
     )
-    h.append(
+    ice_entries.append(
         (t0 + 5, "user_said", "Мне сейчас 25", "ask_age", mem_v1, None)
     )
 
     # 4. Brain decides to update state -> ask_occupation
     mem_v2 = {"name": "Semen", "age": 25}
-    h.append(
+    ice_entries.append(
         (t0 + 6, "update", {"state": "ask_occupation", "memory": {"age": 25}}, "ask_occupation", mem_v2, "User provided age. Moving to ask_occupation.")
     )
 
     # 5. Agent asks occupation
-    h.append(
+    ice_entries.append(
         (t0 + 7, "send_message", {"text": "Супер, 25 — отличный возраст! А кем работаешь?"}, "ask_occupation", mem_v2, "Ask job")
     )
-    h.append(
+    ice_entries.append(
         (t0 + 8, "user_said", "Я работаю AI инженером", "ask_occupation", mem_v2, None)
     )
 
     # 6. Brain decides to update state -> call_ping (Ready)
     mem_v3 = {"name": "Semen", "age": 25, "occupation": "AI engineer"}
-    h.append(
+    ice_entries.append(
         (t0 + 9, "update", {"state": "call_ping", "memory": {"occupation": "AI engineer"}}, "call_ping", mem_v3, "User provided occupation. All data collected.")
     )
 
@@ -112,6 +112,6 @@ if __name__ == "__main__":
     with open("test_output.html", "w") as f:
         # Manually inject for local test
         tmpl = _load_template()
-        code = f"var historyData = {json.dumps(h)};"
-        f.write(tmpl.replace("var historyData = []; // DATA_INJECTION_POINT", code))
+        code = f"var iceData = {json.dumps(ice_entries)};"
+        f.write(tmpl.replace("var iceData = []; // DATA_INJECTION_POINT", code))
     print("Done. Open test_output.html to view.")

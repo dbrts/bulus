@@ -41,41 +41,41 @@ def test_multi_turn_brain_flow(monkeypatch):
     ]
     monkeypatch.setattr(brain_worker, "client", _FakeClient(fake_actions))
 
-    history = [
+    ice = [
         (t0 + 1, "send_message", {"text": "Как тебя зовут?"}, AgentState.ASK_NAME.value, {}, "Start"),
         (t0 + 2, "user_said", "Меня зовут Семен", AgentState.ASK_NAME.value, {}, None),
     ]
 
-    act1 = brain_worker.stateless_brain(history)
+    act1 = brain_worker.stateless_brain(ice)
     assert act1.tool_name == "update"
     assert act1.payload["memory"] == {"name": "Семен"}
 
-    state1, storage1 = apply_update(history[-1][3], history[-1][4], act1.payload)
-    history.append((t0 + 3, act1.tool_name, act1.payload, state1, storage1, act1.thought))
+    state1, storage1 = apply_update(ice[-1][3], ice[-1][4], act1.payload)
+    ice.append((t0 + 3, act1.tool_name, act1.payload, state1, storage1, act1.thought))
 
-    history.extend(
+    ice.extend(
         [
             (t0 + 4, "send_message", {"text": "Приятно познакомиться, Семен! Сколько тебе лет?"}, state1, storage1, "Ask age"),
             (t0 + 5, "user_said", "Мне сейчас 25", state1, storage1, None),
         ]
     )
 
-    act2 = brain_worker.stateless_brain(history)
+    act2 = brain_worker.stateless_brain(ice)
     assert act2.tool_name == "update"
     assert act2.payload["state"] == "ask_occupation"
     assert act2.payload["memory"] == {"age": 25}
 
-    state2, storage2 = apply_update(history[-1][3], history[-1][4], act2.payload)
-    history.append((t0 + 6, act2.tool_name, act2.payload, state2, storage2, act2.thought))
+    state2, storage2 = apply_update(ice[-1][3], ice[-1][4], act2.payload)
+    ice.append((t0 + 6, act2.tool_name, act2.payload, state2, storage2, act2.thought))
 
-    history.extend(
+    ice.extend(
         [
             (t0 + 7, "send_message", {"text": "Супер, 25 — отличный возраст! А кем работаешь?"}, state2, storage2, "Ask job"),
             (t0 + 8, "user_said", "Я работаю AI инженером", state2, storage2, None),
         ]
     )
 
-    act3 = brain_worker.stateless_brain(history)
+    act3 = brain_worker.stateless_brain(ice)
     assert act3.tool_name == "update"
     assert act3.payload["state"] == "call_ping"
     assert act3.payload["memory"] == {"occupation": "AI инженер"}
@@ -93,18 +93,18 @@ def test_one_shot_and_next_step(monkeypatch):
     ]
     monkeypatch.setattr(brain_worker, "client", _FakeClient(fake_actions))
 
-    history = [
+    ice = [
         (t0 + 1, "send_message", {"text": "Привет! Представься для пинга."}, AgentState.HELLO.value, {}, "Init"),
         (t0 + 2, "user_said", "Привет! Меня зовут Алекс, мне 32 года, я работаю плотником.", AgentState.HELLO.value, {}, None),
     ]
 
-    act_oneshot = brain_worker.stateless_brain(history)
+    act_oneshot = brain_worker.stateless_brain(ice)
     assert act_oneshot.tool_name == "update"
     assert act_oneshot.payload["state"] == "call_ping"
     assert act_oneshot.payload["memory"] == {"name": "Алекс", "age": 32, "occupation": "плотник"}
 
-    state_after, storage_after = apply_update(history[-1][3], history[-1][4], act_oneshot.payload)
-    history_next = history + [(t0 + 3, "update", act_oneshot.payload, state_after, storage_after, act_oneshot.thought)]
+    state_after, storage_after = apply_update(ice[-1][3], ice[-1][4], act_oneshot.payload)
+    ice_next = ice + [(t0 + 3, "update", act_oneshot.payload, state_after, storage_after, act_oneshot.thought)]
 
-    act_final = brain_worker.stateless_brain(history_next)
+    act_final = brain_worker.stateless_brain(ice_next)
     assert act_final.tool_name == "test_ping"

@@ -21,12 +21,12 @@ def stateless_brain(ice_history: IceHistory) -> Action:
         current_state = last_ice[3] if len(last_ice) > 3 else "unknown"
         current_storage = last_ice[4] if len(last_ice) > 4 else {}
 
-    # 2. Формирование Истории (Фильтруем старые мысли)
+    # 2. Формирование Ice (фильтруем старые мысли)
     items = []
     # Берем последние 15 записей для контекста
-    recent_history = ice_history[-15:]
+    recent_ice = ice_history[-15:]
 
-    for i, item in enumerate(recent_history):
+    for i, item in enumerate(recent_ice):
         try:
             tool = item[1]
             payload = item[2]
@@ -49,7 +49,7 @@ def stateless_brain(ice_history: IceHistory) -> Action:
         except:
             pass
 
-    history_text = "\n".join(items)
+    ice_text = "\n".join(items)
 
     # 3. Вызов API
     try:
@@ -57,7 +57,7 @@ def stateless_brain(ice_history: IceHistory) -> Action:
             model=MODEL_NAME,
             messages=[
                 {"role": "system", "content": get_system_prompt(current_state, current_storage)},
-                {"role": "user", "content": f"History:\n{history_text}\n\nNext step?"},
+                {"role": "user", "content": f"Ice:\n{ice_text}\n\nNext step?"},
             ],
             response_format=Action,
         )

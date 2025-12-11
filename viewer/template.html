@@ -276,7 +276,7 @@
 </div>
 
 <script>
-    var historyData = []; // DATA_INJECTION_POINT
+    var iceData = []; // DATA_INJECTION_POINT
 
     const slider = document.getElementById('timeSlider');
     const stepCounter = document.getElementById('stepCounter');
@@ -287,7 +287,7 @@
     let playInterval;
 
     function init() {
-        slider.max = Math.max(0, historyData.length - 1);
+        slider.max = Math.max(0, iceData.length - 1);
         slider.value = slider.max; // Start at end
         updateView();
 
@@ -389,12 +389,12 @@
 
     function updateView() {
         const index = parseInt(slider.value);
-        stepCounter.innerText = `${index + 1}/${historyData.length}`;
+        stepCounter.innerText = `${index + 1}/${iceData.length}`;
         
         // 1. Render Chat up to this point
         chatPanel.innerHTML = '';
         // Only show items up to current index
-        const visibleSlice = historyData.slice(0, index + 1);
+        const visibleSlice = iceData.slice(0, index + 1);
         
         visibleSlice.forEach((entry, idx) => {
             const el = renderMessage(entry, idx);
@@ -405,14 +405,14 @@
         chatPanel.scrollTop = chatPanel.scrollHeight;
 
         // 2. Render State Panel for the EXACT current step
-        if (historyData[index]) {
-            renderState(historyData[index]);
+        if (iceData[index]) {
+            renderState(iceData[index]);
         }
     }
 
     function changeStep(delta) {
         let newVal = parseInt(slider.value) + delta;
-        if (newVal >= 0 && newVal < historyData.length) {
+        if (newVal >= 0 && newVal < iceData.length) {
             slider.value = newVal;
             updateView();
         }
@@ -435,7 +435,7 @@
         let intervalMs = 1000 / speed;
 
         playInterval = setInterval(() => {
-            if (parseInt(slider.value) < historyData.length - 1) {
+            if (parseInt(slider.value) < iceData.length - 1) {
                 changeStep(1);
             } else {
                 pause();

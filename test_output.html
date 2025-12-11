@@ -276,7 +276,7 @@
 </div>
 
 <script>
-    var historyData = [[1765469455.339691, "send_message", {"text": "\u041a\u0430\u043a \u0442\u0435\u0431\u044f \u0437\u043e\u0432\u0443\u0442?"}, "ask_name", {}, "Start session"], [1765469456.339691, "user_said", "\u041c\u0435\u043d\u044f \u0437\u043e\u0432\u0443\u0442 \u0421\u0435\u043c\u0435\u043d", "ask_name", {}, null], [1765469457.339691, "update", {"state": "ask_age", "memory": {"name": "Semen"}}, "ask_age", {"name": "Semen"}, "User provided name. Moving to ask_age."], [1765469458.339691, "send_message", {"text": "\u041f\u0440\u0438\u044f\u0442\u043d\u043e \u043f\u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u0442\u044c\u0441\u044f, \u0421\u0435\u043c\u0435\u043d! \u0421\u043a\u043e\u043b\u044c\u043a\u043e \u0442\u0435\u0431\u0435 \u043b\u0435\u0442?"}, "ask_age", {"name": "Semen"}, "Ask age"], [1765469459.339691, "user_said", "\u041c\u043d\u0435 \u0441\u0435\u0439\u0447\u0430\u0441 25", "ask_age", {"name": "Semen"}, null], [1765469460.339691, "update", {"state": "ask_occupation", "memory": {"age": 25}}, "ask_occupation", {"name": "Semen", "age": 25}, "User provided age. Moving to ask_occupation."], [1765469461.339691, "send_message", {"text": "\u0421\u0443\u043f\u0435\u0440, 25 \u2014 \u043e\u0442\u043b\u0438\u0447\u043d\u044b\u0439 \u0432\u043e\u0437\u0440\u0430\u0441\u0442! \u0410 \u043a\u0435\u043c \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0448\u044c?"}, "ask_occupation", {"name": "Semen", "age": 25}, "Ask job"], [1765469462.339691, "user_said", "\u042f \u0440\u0430\u0431\u043e\u0442\u0430\u044e AI \u0438\u043d\u0436\u0435\u043d\u0435\u0440\u043e\u043c", "ask_occupation", {"name": "Semen", "age": 25}, null], [1765469463.339691, "update", {"state": "call_ping", "memory": {"occupation": "AI engineer"}}, "call_ping", {"name": "Semen", "age": 25, "occupation": "AI engineer"}, "User provided occupation. All data collected."]];
+    var iceData = [[1765469455.339691, "send_message", {"text": "\u041a\u0430\u043a \u0442\u0435\u0431\u044f \u0437\u043e\u0432\u0443\u0442?"}, "ask_name", {}, "Start session"], [1765469456.339691, "user_said", "\u041c\u0435\u043d\u044f \u0437\u043e\u0432\u0443\u0442 \u0421\u0435\u043c\u0435\u043d", "ask_name", {}, null], [1765469457.339691, "update", {"state": "ask_age", "memory": {"name": "Semen"}}, "ask_age", {"name": "Semen"}, "User provided name. Moving to ask_age."], [1765469458.339691, "send_message", {"text": "\u041f\u0440\u0438\u044f\u0442\u043d\u043e \u043f\u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u0442\u044c\u0441\u044f, \u0421\u0435\u043c\u0435\u043d! \u0421\u043a\u043e\u043b\u044c\u043a\u043e \u0442\u0435\u0431\u0435 \u043b\u0435\u0442?"}, "ask_age", {"name": "Semen"}, "Ask age"], [1765469459.339691, "user_said", "\u041c\u043d\u0435 \u0441\u0435\u0439\u0447\u0430\u0441 25", "ask_age", {"name": "Semen"}, null], [1765469460.339691, "update", {"state": "ask_occupation", "memory": {"age": 25}}, "ask_occupation", {"name": "Semen", "age": 25}, "User provided age. Moving to ask_occupation."], [1765469461.339691, "send_message", {"text": "\u0421\u0443\u043f\u0435\u0440, 25 \u2014 \u043e\u0442\u043b\u0438\u0447\u043d\u044b\u0439 \u0432\u043e\u0437\u0440\u0430\u0441\u0442! \u0410 \u043a\u0435\u043c \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0448\u044c?"}, "ask_occupation", {"name": "Semen", "age": 25}, "Ask job"], [1765469462.339691, "user_said", "\u042f \u0440\u0430\u0431\u043e\u0442\u0430\u044e AI \u0438\u043d\u0436\u0435\u043d\u0435\u0440\u043e\u043c", "ask_occupation", {"name": "Semen", "age": 25}, null], [1765469463.339691, "update", {"state": "call_ping", "memory": {"occupation": "AI engineer"}}, "call_ping", {"name": "Semen", "age": 25, "occupation": "AI engineer"}, "User provided occupation. All data collected."]];
 
     const slider = document.getElementById('timeSlider');
     const stepCounter = document.getElementById('stepCounter');
@@ -287,7 +287,7 @@
     let playInterval;
 
     function init() {
-        slider.max = Math.max(0, historyData.length - 1);
+        slider.max = Math.max(0, iceData.length - 1);
         slider.value = slider.max; // Start at end
         updateView();
 
@@ -389,12 +389,12 @@
 
     function updateView() {
         const index = parseInt(slider.value);
-        stepCounter.innerText = `${index + 1}/${historyData.length}`;
+        stepCounter.innerText = `${index + 1}/${iceData.length}`;
         
         // 1. Render Chat up to this point
         chatPanel.innerHTML = '';
         // Only show items up to current index
-        const visibleSlice = historyData.slice(0, index + 1);
+        const visibleSlice = iceData.slice(0, index + 1);
         
         visibleSlice.forEach((entry, idx) => {
             const el = renderMessage(entry, idx);
@@ -405,14 +405,14 @@
         chatPanel.scrollTop = chatPanel.scrollHeight;
 
         // 2. Render State Panel for the EXACT current step
-        if (historyData[index]) {
-            renderState(historyData[index]);
+        if (iceData[index]) {
+            renderState(iceData[index]);
         }
     }
 
     function changeStep(delta) {
         let newVal = parseInt(slider.value) + delta;
-        if (newVal >= 0 && newVal < historyData.length) {
+        if (newVal >= 0 && newVal < iceData.length) {
             slider.value = newVal;
             updateView();
         }
@@ -435,7 +435,7 @@
         let intervalMs = 1000 / speed;
 
         playInterval = setInterval(() => {
-            if (parseInt(slider.value) < historyData.length - 1) {
+            if (parseInt(slider.value) < iceData.length - 1) {
                 changeStep(1);
             } else {
                 pause();

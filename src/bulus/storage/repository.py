@@ -11,20 +11,20 @@ class BulusRepo:
         self.session_id = session_id
         self.file_path = os.path.join(SESSIONS_DIR, f"{session_id}.jsonl")
 
-    def load_history(self) -> IceHistory:
-        """Читает историю событий с диска."""
+    def load_ice(self) -> IceHistory:
+        """Читает Ice-ледник событий с диска."""
         if not os.path.exists(self.file_path):
             return []
 
-        history = []
+        ice = []
         with open(self.file_path, "r", encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     try:
-                        history.append(json.loads(line))
+                        ice.append(json.loads(line))
                     except json.JSONDecodeError:
                         pass  # Пропускаем битые линии
-        return history
+        return ice
 
     def append(self, entry: IceEntry):
         """Добавляет событие в конец файла."""

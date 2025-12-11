@@ -11,16 +11,16 @@ def run_session_loop(session_id: str):
 
     while True:
         # 1. Загрузка
-        history = repo.load_history()
+        ice = repo.load_ice()
 
         # ЛОГИКА ОЖИДАНИЯ ЮЗЕРА:
-        # Если история пуста ИЛИ последнее действие агента было 'send_message',
+        # Если ледник пуст ИЛИ последнее действие агента было 'send_message',
         # значит теперь очередь юзера.
         wait_for_user = False
-        if not history:
+        if not ice:
             wait_for_user = False  # Сразу даем агенту инициативу (приветствие)
         else:
-            last_tool = history[-1][1]
+            last_tool = ice[-1][1]
             if last_tool in ["send_message", "test_ping", "error"]:
                 wait_for_user = True
 
@@ -35,8 +35,8 @@ def run_session_loop(session_id: str):
 
             # Создаем Ice событие от юзера
             # Берем стейт/сторадж из последнего кадра
-            state = history[-1][3]
-            storage = history[-1][4]
+            state = ice[-1][3]
+            storage = ice[-1][4]
 
             user_entry: IceEntry = (
                 time.time(),
@@ -51,12 +51,12 @@ def run_session_loop(session_id: str):
 
         # 2. BRAIN STEP
         print("🧠 Thinking...")
-        action = stateless_brain(history)
+        action = stateless_brain(ice)
         print(f"   [Thought]: {action.thought}")
         print(f"   [Tool]:    {action.tool_name} | {action.payload}")
 
         # 3. RUNNER STEP
-        new_ice = imperative_runner(history, action)
+        new_ice = imperative_runner(ice, action)
 
         # 4. SAVE (COMMIT)
         repo.append(new_ice)

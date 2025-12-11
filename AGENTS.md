@@ -12,7 +12,7 @@
 - Manual scenario check with the live LLM: `OPENAI_API_KEY=... python scripts/run_scenarios.py` (validates multi-turn and one-shot flows against `AgentState` transitions).
 
 ## Coding Style & Naming Conventions
-- Use 4-space indentation, type hints, and keep functions side-effect-light; the brain is deterministic given history.
+- Use 4-space indentation, type hints, and keep functions side-effect-light; the brain is deterministic given the Ice ledger.
 - Preserve the Ice tuple shape `(timestamp, tool_name, payload, state, storage, thought)`; avoid mutating storage outside `apply_update`.
 - Models rely on Pydantic; keep `Action.payload_str` valid JSON and let validators enforce allowed states.
 - Naming: snake_case for functions/variables, PascalCase for classes/enums, UPPER_SNAKE for constants and env keys.
@@ -23,10 +23,10 @@
 - When adding new tools or states, add assertions for expected `tool_name`, `state`, and memory patches, and prefer fixed timestamps for reproducibility.
 
 ## Commit & Pull Request Guidelines
-- Existing history uses short, imperative messages (“added visualization”, “version 3”); follow that tone and keep scope focused.
+- Existing git log uses short, imperative messages (“added visualization”, “version 3”); follow that tone and keep scope focused.
 - In PRs, describe the scenario tested (e.g., `pytest`, integration flag, `scripts/run_scenarios.py` output), link issues, and include screenshots or logs for viewer or UX changes.
 - Call out config needs (`OPENAI_API_KEY`, `OPENAI_MODEL_NAME`) and any new files to ignore (e.g., generated `.bulus/` data).
 
 ## Security & Configuration Tips
 - Do not commit `.env` or real keys; placeholders like `sk-proj-твой-ключ-здесь` should be replaced locally only.
-- Keep API calls deterministic (temperature 0/consistent model) to support reproducible replays and viewer traces.***
+- Keep API calls deterministic (temperature 0/consistent model) to support reproducible replays and viewer traces.

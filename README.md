@@ -7,13 +7,13 @@ Bulus is a deterministic state management and replay engine for LLM agents, buil
 ## Core Concepts
 
 ### 1. The Stateless Brain
-In Bulus, the agent has no internal mutable state. Its "brain" is a pure function that takes the entire session history as input and returns the next action.
+In Bulus, the agent has no internal mutable state. Its "brain" is a pure function that takes the entire session Ice ledger as input and returns the next action.
 
 ```python
-Action = f(History)
+Action = f(Ice)
 ```
 
-This ensures that for any given history, the agent's decision is deterministic (assuming the LLM's temperature is 0 or consistent).
+This ensures that for any given Ice ledger, the agent's decision is deterministic (assuming the LLM's temperature is 0 or consistent).
 
 ### 2. Ice: The Immutable Ledger
 The agent's memory is not a black box vector store or a mutable JSON object. It is a linear, append-only log of events called "Ice".
@@ -31,9 +31,9 @@ Each entry in the Ice is a tuple:
 ```
 
 ### 3. Time Travel & Forking
-Because the state is fully reconstructed from the history, you can:
-- **Rewind:** Slice the history list to go back to any point in time.
-- **Fork:** Create a new branch of the conversation by appending a different event to a past history.
+Because the state is fully reconstructed from Ice, you can:
+- **Rewind:** Slice the Ice list to go back to any point in time.
+- **Fork:** Create a new branch of the conversation by appending a different event to past Ice.
 - **Debug:** Replay a failed production session in a local environment (like a Jupyter Notebook) to understand exactly why the agent made a specific decision.
 
 ## Installation
@@ -63,15 +63,15 @@ from bulus.brain.worker import stateless_brain
 from bulus.core.states import AgentState
 from bulus.runner.tools import apply_update
 
-# 1. Define an initial history (e.g., user greets the agent)
+# 1. Define an initial Ice ledger (e.g., user greets the agent)
 t0 = time.time()
-history = [
+ice = [
     (t0, "send_message", {"text": "Hello! What is your name?"}, AgentState.ASK_NAME.value, {}, "Init"),
     (t0 + 1, "user_said", "I am Alice", AgentState.ASK_NAME.value, {}, None),
 ]
 
 # 2. Call the brain to get the next action
-action = stateless_brain(history)
+action = stateless_brain(ice)
 
 print(f"Thought: {action.thought}")
 print(f"Tool:    {action.tool_name}")
@@ -98,10 +98,10 @@ Bulus includes a "Time Travel" HTML viewer for Jupyter Notebooks. It allows you 
 
 ```python
 from viewer import show_bulus_trace
-# Assuming you have a history list (e.g., from BulusRepo or a script)
-# history = [...] 
+# Assuming you have an Ice list (e.g., from BulusRepo or a script)
+# ice = [...] 
 
-show_bulus_trace(history)
+show_bulus_trace(ice)
 ```
 
 ## License

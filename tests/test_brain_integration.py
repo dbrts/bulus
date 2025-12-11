@@ -26,12 +26,12 @@ def test_one_shot_reaches_call_ping_and_triggers_ping():
     _require_real_client()
     t0 = int(time.time())
 
-    history = [
+    ice = [
         (t0 + 1, "send_message", {"text": "Привет! Представься для пинга."}, AgentState.HELLO.value, {}, "Init"),
         (t0 + 2, "user_said", "Привет! Меня зовут Алекс, мне 32 года, я работаю плотником.", AgentState.HELLO.value, {}, None),
     ]
 
-    act_oneshot = stateless_brain(history)
+    act_oneshot = stateless_brain(ice)
     assert act_oneshot.tool_name == "update"
 
     payload = act_oneshot.payload
@@ -42,8 +42,8 @@ def test_one_shot_reaches_call_ping_and_triggers_ping():
     assert memory.get("occupation")
     assert str(memory.get("age", "")).strip()
 
-    state_after, storage_after = apply_update(history[-1][3], history[-1][4], payload)
-    history_next = history + [(t0 + 3, "update", payload, state_after, storage_after, act_oneshot.thought)]
+    state_after, storage_after = apply_update(ice[-1][3], ice[-1][4], payload)
+    ice_next = ice + [(t0 + 3, "update", payload, state_after, storage_after, act_oneshot.thought)]
 
-    act_final = stateless_brain(history_next)
+    act_final = stateless_brain(ice_next)
     assert act_final.tool_name == "test_ping"
