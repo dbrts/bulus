@@ -19,7 +19,7 @@ SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from bulus.brain.worker import stateless_brain, client  # type: ignore  # noqa: E402
+from bulus.brain.worker import client, stateless_brain  # type: ignore  # noqa: E402
 from bulus.config import API_KEY, MODEL_NAME  # type: ignore  # noqa: E402
 from bulus.core.states import AgentState  # type: ignore  # noqa: E402
 from bulus.runner.worker import imperative_runner  # type: ignore  # noqa: E402
@@ -60,7 +60,14 @@ def run_multi_turn():
 
     ice_turn_2.extend(
         [
-            (t0 + 4, "send_message", {"text": "Приятно познакомиться, Семен! Сколько тебе лет?"}, state1, storage1, "Ask age"),
+            (
+                t0 + 4,
+                "send_message",
+                {"text": "Приятно познакомиться, Семен! Сколько тебе лет?"},
+                state1,
+                storage1,
+                "Ask age",
+            ),
             (t0 + 5, "user_said", "Мне сейчас 25", state1, storage1, None),
         ]
     )
@@ -77,7 +84,14 @@ def run_multi_turn():
 
     ice_turn_3.extend(
         [
-            (t0 + 7, "send_message", {"text": "Супер, 25 — отличный возраст! А кем работаешь?"}, state2, storage2, "Ask job"),
+            (
+                t0 + 7,
+                "send_message",
+                {"text": "Супер, 25 — отличный возраст! А кем работаешь?"},
+                state2,
+                storage2,
+                "Ask job",
+            ),
             (t0 + 8, "user_said", "Я работаю AI инженером", state2, storage2, None),
         ]
     )
@@ -97,7 +111,14 @@ def run_one_shot():
 
     ice = [
         (t0 + 1, "send_message", {"text": "Привет! Представься для пинга."}, AgentState.HELLO.value, {}, "Init"),
-        (t0 + 2, "user_said", "Привет! Меня зовут Алекс, мне 32 года, я работаю плотником.", AgentState.HELLO.value, {}, None),
+        (
+            t0 + 2,
+            "user_said",
+            "Привет! Меня зовут Алекс, мне 32 года, я работаю плотником.",
+            AgentState.HELLO.value,
+            {},
+            None,
+        ),
     ]
 
     act = stateless_brain(ice)

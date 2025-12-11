@@ -1,4 +1,5 @@
 import json
+
 from bulus.core.states import VALID_STATES_LIST
 
 # Описание инструментов

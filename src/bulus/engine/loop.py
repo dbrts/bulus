@@ -1,8 +1,9 @@
 import time
-from bulus.storage.repository import BulusRepo
+
 from bulus.brain.worker import stateless_brain
-from bulus.runner.worker import imperative_runner
 from bulus.core.schemas import IceEntry
+from bulus.runner.worker import imperative_runner
+from bulus.storage.repository import BulusRepo
 
 
 def run_session_loop(session_id: str):

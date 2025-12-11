@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from bulus.brain.worker import stateless_brain, client
+from bulus.brain.worker import client, stateless_brain
 from bulus.config import API_KEY
 from bulus.core.states import AgentState
 from bulus.runner.tools import apply_update
@@ -28,7 +28,14 @@ def test_one_shot_reaches_call_ping_and_triggers_ping():
 
     ice = [
         (t0 + 1, "send_message", {"text": "Привет! Представься для пинга."}, AgentState.HELLO.value, {}, "Init"),
-        (t0 + 2, "user_said", "Привет! Меня зовут Алекс, мне 32 года, я работаю плотником.", AgentState.HELLO.value, {}, None),
+        (
+            t0 + 2,
+            "user_said",
+            "Привет! Меня зовут Алекс, мне 32 года, я работаю плотником.",
+            AgentState.HELLO.value,
+            {},
+            None,
+        ),
     ]
 
     act_oneshot = stateless_brain(ice)

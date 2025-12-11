@@ -1,7 +1,8 @@
 import json
 import os
+
 from bulus.config import SESSIONS_DIR
-from bulus.core.schemas import IceEntry, IceHistory
+from bulus.core.schemas import IceEntry
 
 
 class BulusRepo:
@@ -33,7 +34,7 @@ class BulusRepo:
             legacy_path = f"{self.file_path}l"  # .jsonl из старых версий
             if os.path.exists(legacy_path):
                 ice = []
-                with open(legacy_path, "r", encoding="utf-8") as f:
+                with open(legacy_path, encoding="utf-8") as f:
                     for line in f:
                         if line.strip():
                             try:
@@ -42,7 +43,7 @@ class BulusRepo:
                                 pass
                 return self._normalize_doc(ice)
             return self._default_doc()
-        with open(self.file_path, "r", encoding="utf-8") as f:
+        with open(self.file_path, encoding="utf-8") as f:
             try:
                 data = json.load(f)
             except json.JSONDecodeError:

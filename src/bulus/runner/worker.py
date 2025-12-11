@@ -1,5 +1,6 @@
 import time
-from bulus.core.schemas import IceHistory, IceEntry, Action
+
+from bulus.core.schemas import Action, IceEntry, IceHistory
 from bulus.core.states import AgentState
 from bulus.runner.tools import apply_update
 

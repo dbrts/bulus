@@ -1,8 +1,9 @@
 from openai import OpenAI
-from bulus.config import API_KEY, MODEL_NAME
-from bulus.core.schemas import IceHistory, Action
-from bulus.core.states import AgentState
+
 from bulus.brain.prompts import get_system_prompt
+from bulus.config import API_KEY, MODEL_NAME
+from bulus.core.schemas import Action, IceHistory
+from bulus.core.states import AgentState
 
 client = OpenAI(api_key=API_KEY) if API_KEY else None
 

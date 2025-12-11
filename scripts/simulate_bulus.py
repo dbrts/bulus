@@ -16,7 +16,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, Any, Iterable
+from typing import Any, Dict, Iterable
 
 # Ensure src/ is importable when running as a script
 ROOT_DIR = Path(__file__).resolve().parents[1]

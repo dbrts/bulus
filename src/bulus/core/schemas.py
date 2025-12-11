@@ -1,6 +1,8 @@
 import json
-from typing import Dict, Any, Tuple, List, TypeAlias
-from pydantic import BaseModel, Field, model_validator, PrivateAttr
+from typing import Any, Dict, List, Tuple, TypeAlias
+
+from pydantic import BaseModel, Field, PrivateAttr, model_validator
+
 from bulus.core.states import VALID_STATES_LIST
 
 # --- Ice Structure ---

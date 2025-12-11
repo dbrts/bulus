@@ -41,9 +41,9 @@ Because the state is fully reconstructed from Ice, you can:
 ```bash
 git clone https://github.com/dbrts/bulus.git
 cd bulus
-uv sync           # creates .venv and installs runtime deps
-# For development/tests:
-# uv sync --dev
+uv sync                 # creates .venv and installs runtime deps
+# For development/tests (ruff/pytest):
+# uv sync --extra dev
 ```
 
 ## Configuration
@@ -94,6 +94,7 @@ print(f"Payload: {action.payload}")
 - **`src/bulus/engine`**: Orchestrates the loop.
 - **`viewer/`**: Contains the Time Travel Debugger visualization tools.
 - **`.bulus/sessions/<id>.json`**: Per-session JSON with `metadata` (e.g., `status: need_brain | need_runner | still`) and `history` (list of Ice entries).
+- Linting/formatting: `uv run ruff check .` and `uv run ruff format .` (requires `uv sync --extra dev`).
 
 ## Visualization (Time Travel Viewer)
 

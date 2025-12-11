@@ -37,7 +37,9 @@ def test_multi_turn_brain_flow(monkeypatch):
     fake_actions = [
         make_action("update", {"state": "ask_age", "memory": {"name": "Семен"}}, "Got name, moving to age"),
         make_action("update", {"state": "ask_occupation", "memory": {"age": 25}}, "Got age, moving to occupation"),
-        make_action("update", {"state": "call_ping", "memory": {"occupation": "AI инженер"}}, "Got occupation, ready to ping"),
+        make_action(
+            "update", {"state": "call_ping", "memory": {"occupation": "AI инженер"}}, "Got occupation, ready to ping"
+        ),
     ]
     monkeypatch.setattr(brain_worker, "client", _FakeClient(fake_actions))
 
@@ -55,7 +57,14 @@ def test_multi_turn_brain_flow(monkeypatch):
 
     ice.extend(
         [
-            (t0 + 4, "send_message", {"text": "Приятно познакомиться, Семен! Сколько тебе лет?"}, state1, storage1, "Ask age"),
+            (
+                t0 + 4,
+                "send_message",
+                {"text": "Приятно познакомиться, Семен! Сколько тебе лет?"},
+                state1,
+                storage1,
+                "Ask age",
+            ),
             (t0 + 5, "user_said", "Мне сейчас 25", state1, storage1, None),
         ]
     )
@@ -70,7 +79,14 @@ def test_multi_turn_brain_flow(monkeypatch):
 
     ice.extend(
         [
-            (t0 + 7, "send_message", {"text": "Супер, 25 — отличный возраст! А кем работаешь?"}, state2, storage2, "Ask job"),
+            (
+                t0 + 7,
+                "send_message",
+                {"text": "Супер, 25 — отличный возраст! А кем работаешь?"},
+                state2,
+                storage2,
+                "Ask job",
+            ),
             (t0 + 8, "user_said", "Я работаю AI инженером", state2, storage2, None),
         ]
     )
@@ -95,7 +111,14 @@ def test_one_shot_and_next_step(monkeypatch):
 
     ice = [
         (t0 + 1, "send_message", {"text": "Привет! Представься для пинга."}, AgentState.HELLO.value, {}, "Init"),
-        (t0 + 2, "user_said", "Привет! Меня зовут Алекс, мне 32 года, я работаю плотником.", AgentState.HELLO.value, {}, None),
+        (
+            t0 + 2,
+            "user_said",
+            "Привет! Меня зовут Алекс, мне 32 года, я работаю плотником.",
+            AgentState.HELLO.value,
+            {},
+            None,
+        ),
     ]
 
     act_oneshot = brain_worker.stateless_brain(ice)
