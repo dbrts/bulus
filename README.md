@@ -91,6 +91,7 @@ print(f"Payload: {action.payload}")
 - **`src/bulus/storage`**: Manages the persistence of the Ice ledger.
 - **`src/bulus/engine`**: Orchestrates the loop.
 - **`viewer/`**: Contains the Time Travel Debugger visualization tools.
+- **`.bulus/sessions/<id>.json`**: Per-session JSON with `metadata` (e.g., `status: need_brain | need_runner | still`) and `history` (list of Ice entries).
 
 ## Visualization (Time Travel Viewer)
 

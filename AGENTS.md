@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Core code lives in `src/bulus`: `brain/` holds the stateless brain and prompts, `core/` defines schemas (e.g., `IceEntry`, `Action`, `AgentState`), `runner/` executes tools like `apply_update`, and `engine/` contains the loop orchestration. `config.py` loads `.env` and prepares `.bulus/` storage directories (`blobs/`, `sessions/`).
+- Core code lives in `src/bulus`: `brain/` holds the stateless brain and prompts, `core/` defines schemas (e.g., `IceEntry`, `Action`, `AgentState`), `runner/` executes tools like `apply_update`, and `engine/` contains the loop orchestration. `config.py` loads `.env` and prepares `.bulus/` storage directories (`blobs/`, `sessions/`); each session is stored as JSON `{"metadata": {"status": "need_brain"/"need_runner"/"still"}, "history": [IceEntry...]}`.
 - Supporting assets: `viewer/` contains the time-travel HTML viewer, `dist/` ships built artifacts, and `.bulus/` is generated runtime state (keep it out of commits).
 - Tests live in `tests/` with unit flows and OpenAI integration coverage; scripts for manual runs sit in `scripts/` (see `run_scenarios.py`).
 

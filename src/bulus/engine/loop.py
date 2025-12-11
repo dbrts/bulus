@@ -11,18 +11,13 @@ def run_session_loop(session_id: str):
 
     while True:
         # 1. Загрузка
-        ice = repo.load_ice()
+        doc = repo.load()
+        ice = doc.get("history", [])
+        status = doc.get("metadata", {}).get("status", "need_brain")
 
         # ЛОГИКА ОЖИДАНИЯ ЮЗЕРА:
-        # Если ледник пуст ИЛИ последнее действие агента было 'send_message',
-        # значит теперь очередь юзера.
-        wait_for_user = False
-        if not ice:
-            wait_for_user = False  # Сразу даем агенту инициативу (приветствие)
-        else:
-            last_tool = ice[-1][1]
-            if last_tool in ["send_message", "test_ping", "error"]:
-                wait_for_user = True
+        # если статус still — ждем пользователя; иначе даем ход мозгу.
+        wait_for_user = status == "still"
 
         if wait_for_user:
             try:
@@ -46,7 +41,7 @@ def run_session_loop(session_id: str):
                 storage,
                 None,  # У юзера нет мыслей
             )
-            repo.append(user_entry)
+            repo.append(user_entry, status="need_brain")
             continue
 
         # 2. BRAIN STEP
@@ -59,7 +54,7 @@ def run_session_loop(session_id: str):
         new_ice = imperative_runner(ice, action)
 
         # 4. SAVE (COMMIT)
-        repo.append(new_ice)
+        repo.append(new_ice, status="still")
 
         time.sleep(0.5)
 
