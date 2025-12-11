@@ -2,7 +2,7 @@
 Lightweight simulation of the Bulus blackboard:
 - Sessions live in .bulus/sessions as JSON with {"metadata": {"status": ...}, "history": [...]}
 - Brain workers handle status=need_brain and stash pending_action -> need_runner
-- Runner workers apply pending_action (imperative_runner) and set status to still/need_brain/done
+- Runner workers apply pending_action (imperative_runner) and set status to still/need_brain
 - A tiny "user" loop feeds canned replies when status=still to unblock the next brain step
 
 Run:
@@ -126,12 +126,7 @@ def runner_worker(sessions_dir: Path):
         doc["history"].append(new_entry)
 
         next_state = new_entry[3]
-        if action.tool_name == "test_ping":
-            next_status = "done"
-        elif next_state in WAITING_STATES:
-            next_status = "still"
-        else:
-            next_status = "need_brain"
+        next_status = "still" if next_state in WAITING_STATES else "need_brain"
 
         meta["pending_action"] = None
         meta["status"] = next_status

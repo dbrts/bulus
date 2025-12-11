@@ -1,4 +1,3 @@
-import json
 from typing import List
 
 from bulus.core.schemas import Action

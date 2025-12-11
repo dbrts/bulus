@@ -14,7 +14,10 @@ class BulusRepo:
         self.file_path = os.path.join(SESSIONS_DIR, f"{session_id}.json")
 
     def _default_doc(self):
-        return {"metadata": {"session_id": self.session_id, "status": "need_brain"}, "history": []}
+        return {
+            "metadata": {"session_id": self.session_id, "status": "need_brain", "pending_action": None},
+            "history": [],
+        }
 
     def _normalize_doc(self, data) -> dict:
         """Поддержка старого формата (список Ice) и нового с metadata."""
@@ -23,9 +26,10 @@ class BulusRepo:
         if not isinstance(data, dict):
             return self._default_doc()
         # Ensure required keys exist
-        data.setdefault("metadata", {"session_id": self.session_id, "status": "need_brain"})
+        data.setdefault("metadata", {"session_id": self.session_id, "status": "need_brain", "pending_action": None})
         data["metadata"].setdefault("session_id", self.session_id)
         data["metadata"].setdefault("status", "need_brain")
+        data["metadata"].setdefault("pending_action", None)
         data.setdefault("history", [])
         return data
 

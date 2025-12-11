@@ -1,9 +1,17 @@
+import json
 import time
 
 from bulus.brain.worker import stateless_brain
-from bulus.core.schemas import IceEntry
+from bulus.core.schemas import Action, IceEntry
+from bulus.core.states import AgentState
 from bulus.runner.worker import imperative_runner
 from bulus.storage.repository import BulusRepo
+
+WAITING_STATES = {
+    AgentState.ASK_NAME.value,
+    AgentState.ASK_AGE.value,
+    AgentState.ASK_OCCUPATION.value,
+}
 
 
 def run_session_loop(session_id: str):
@@ -15,6 +23,29 @@ def run_session_loop(session_id: str):
         doc = repo.load()
         ice = doc.get("history", [])
         status = doc.get("metadata", {}).get("status", "need_brain")
+        pending_action = doc.get("metadata", {}).get("pending_action")
+
+        # 0. RUNNER STEP (если мозг уже записал pending_action)
+        if status == "need_runner":
+            if not pending_action:
+                doc["metadata"]["status"] = "need_brain"
+                repo.save(doc)
+                continue
+
+            action = Action(
+                tool_name=pending_action.get("tool_name", "error"),
+                payload_str=json.dumps(pending_action.get("payload", {}), ensure_ascii=False),
+                thought=pending_action.get("thought", ""),
+            )
+            new_ice = imperative_runner(ice, action)
+            doc["history"].append(new_ice)
+
+            next_state = new_ice[3]
+            doc["metadata"]["pending_action"] = None
+            doc["metadata"]["status"] = "still" if next_state in WAITING_STATES else "need_brain"
+            repo.save(doc)
+            time.sleep(0.1)
+            continue
 
         # ЛОГИКА ОЖИДАНИЯ ЮЗЕРА:
         # если статус still — ждем пользователя; иначе даем ход мозгу.
@@ -45,17 +76,19 @@ def run_session_loop(session_id: str):
             repo.append(user_entry, status="need_brain")
             continue
 
-        # 2. BRAIN STEP
+        # 2. BRAIN STEP — записываем pending_action, чтобы раннер применил
         print("🧠 Thinking...")
         action = stateless_brain(ice)
         print(f"   [Thought]: {action.thought}")
         print(f"   [Tool]:    {action.tool_name} | {action.payload}")
 
-        # 3. RUNNER STEP
-        new_ice = imperative_runner(ice, action)
-
-        # 4. SAVE (COMMIT)
-        repo.append(new_ice, status="still")
+        doc["metadata"]["pending_action"] = {
+            "tool_name": action.tool_name,
+            "payload": action.payload,
+            "thought": action.thought,
+        }
+        doc["metadata"]["status"] = "need_runner"
+        repo.save(doc)
 
         time.sleep(0.5)
 

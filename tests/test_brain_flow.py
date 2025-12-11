@@ -1,5 +1,4 @@
 import json
-from typing import List
 
 from bulus.brain import worker as brain_worker
 from bulus.core.schemas import Action
