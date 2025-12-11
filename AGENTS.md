@@ -6,10 +6,10 @@
 - Tests live in `tests/` with unit flows and OpenAI integration coverage; scripts for manual runs sit in `scripts/` (see `run_scenarios.py`).
 
 ## Build, Test, and Development Commands
-- Install: `pip install -e .` (or `pip install -r requirements.txt`) after activating your virtualenv. Requires Python 3.8+.
-- Fast tests: `pytest` (default unit suite; no network).
-- Integration: `RUN_OPENAI_INTEGRATION=1 OPENAI_API_KEY=... pytest -m integration` hits the real API; skips automatically if the key is missing or placeholder.
-- Manual scenario check with the live LLM: `OPENAI_API_KEY=... python scripts/run_scenarios.py` (validates multi-turn and one-shot flows against `AgentState` transitions).
+- Install: `uv sync` (creates `.venv` automatically). For full dev/test deps use `uv sync --dev`. Requires Python 3.8+.
+- Fast tests: `uv run pytest` (default unit suite; no network).
+- Integration: `RUN_OPENAI_INTEGRATION=1 OPENAI_API_KEY=... uv run pytest -m integration` hits the real API; skips automatically if the key is missing or placeholder.
+- Manual scenario check with the live LLM: `OPENAI_API_KEY=... uv run python scripts/run_scenarios.py` (validates multi-turn and one-shot flows against `AgentState` transitions).
 
 ## Coding Style & Naming Conventions
 - Use 4-space indentation, type hints, and keep functions side-effect-light; the brain is deterministic given the Ice ledger.

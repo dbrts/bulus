@@ -41,7 +41,9 @@ Because the state is fully reconstructed from Ice, you can:
 ```bash
 git clone https://github.com/dbrts/bulus.git
 cd bulus
-pip install -e .
+uv sync           # creates .venv and installs runtime deps
+# For development/tests:
+# uv sync --dev
 ```
 
 ## Configuration
