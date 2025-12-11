@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulus Time Travel</title>
+    <style>
+        :root {
+            --bg-color: #0f1117;
+            --panel-bg: #1a1d26;
+            --accent: #3b82f6;
+            --text-main: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: #2d3748;
+            --user-bubble: #2563eb;
+            --agent-bubble: #334155;
+            --system-bubble: #1e293b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            height: calc(100% - 60px); /* Leave room for footer */
+        }
+
+        .chat-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .state-panel {
+            flex: 1;
+            background-color: var(--panel-bg);
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            border-left: 1px solid #000;
+        }
+
+        /* Chat Bubbles */
+        .message {
+            margin-bottom: 16px;
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background-color: var(--user-bubble);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.agent {
+            align-self: flex-start;
+            background-color: var(--agent-bubble);
+            color: var(--text-main);
+            border-bottom-left-radius: 2px;
+        }
+
+        .message.system {
+            align-self: center;
+            background-color: transparent;
+            color: var(--text-dim);
+            font-size: 0.85em;
+            text-align: center;
+            border: 1px dashed var(--border);
+            max-width: 90%;
+        }
+
+        .message-label {
+            font-size: 0.75em;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* State Panel */
+        .state-section {
+            margin-bottom: 24px;
+        }
+        
+        .state-title {
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px;
+        }
+
+        .json-block {
+            background-color: #000;
+            padding: 10px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            color: #a5b4fc;
+        }
+
+        .thought-block {
+            font-style: italic;
+            color: #cbd5e1;
+            padding: 10px;
+            background: #33415555;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Footer / Slider */
+        .footer {
+            height: 60px;
+            background-color: var(--panel-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--border);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .speed-control select {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-family: monospace;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .speed-control select option {
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+        }
+
+        /* Remove spinner arrows from number input for cleaner look */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        .slider-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type=range] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .step-counter {
+            font-family: monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--accent);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background: var(--border);
+            border: none;
+            color: var(--text-main);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: var(--accent); }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="chat-panel" id="chatPanel">
+        <!-- Messages go here -->
+    </div>
+    <div class="state-panel" id="statePanel">
+        <!-- State inspection goes here -->
+    </div>
+</div>
+
+<div class="footer">
+    <div class="controls">
+        <button onclick="changeStep(-1)" title="Step Back">|◀</button>
+        <button onclick="togglePlay()" id="playBtn" title="Play/Pause">▶</button>
+        <button onclick="changeStep(1)" title="Step Forward">▶|</button>
+    </div>
+    
+    <div class="speed-control" title="Playback Speed">
+        <label for="speedInput">⚡</label>
+        <select id="speedInput">
+            <option value="0.25">0.25x</option>
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>Normal</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="1.75">1.75x</option>
+            <option value="2">2x</option>
+        </select>
+    </div>
+
+    <div class="slider-container">
+        <input type="range" id="timeSlider" min="0" max="0" value="0" step="1">
+    </div>
+    <div class="step-counter" id="stepCounter">0/0</div>
+</div>
+
+<script>
+    var historyData = []; // DATA_INJECTION_POINT
+
+    const slider = document.getElementById('timeSlider');
+    const stepCounter = document.getElementById('stepCounter');
+    const chatPanel = document.getElementById('chatPanel');
+    const statePanel = document.getElementById('statePanel');
+    
+    let isPlaying = false;
+    let playInterval;
+
+    function init() {
+        slider.max = Math.max(0, historyData.length - 1);
+        slider.value = slider.max; // Start at end
+        updateView();
+
+        slider.addEventListener('input', () => {
+            updateView();
+            pause();
+        });
+
+        // Restart playback if speed changes
+        document.getElementById('speedInput').addEventListener('change', () => {
+            if (isPlaying) {
+                pause();
+                play();
+            }
+        });
+    }
+
+    function formatTime(ts) {
+        return new Date(ts * 1000).toLocaleTimeString();
+    }
+
+    function renderMessage(entry, index) {
+        const [ts, tool, payload, state, storage, thought] = entry;
+        
+        let div = document.createElement('div');
+        div.className = 'message';
+        
+        let label = document.createElement('div');
+        label.className = 'message-label';
+        
+        let content = document.createElement('div');
+
+        if (tool === 'user_said') {
+            div.classList.add('user');
+            label.innerText = 'USER • ' + formatTime(ts);
+            content.innerText = typeof payload === 'string' ? payload : payload.text || JSON.stringify(payload);
+        } else if (tool === 'send_message') {
+            div.classList.add('agent');
+            label.innerText = 'AGENT • ' + formatTime(ts);
+            content.innerText = payload.text || JSON.stringify(payload);
+        } else {
+            div.classList.add('system');
+            label.innerText = tool.toUpperCase() + ' • ' + formatTime(ts);
+            
+            // Format system payloads nicely
+            if (tool === 'update') {
+                content.innerHTML = `<span style="color:#fbbf24">State → ${payload.state || 'Same'}</span>`;
+            } else {
+                content.innerText = JSON.stringify(payload);
+            }
+        }
+
+        div.appendChild(label);
+        div.appendChild(content);
+        return div;
+    }
+
+    function renderState(entry) {
+        const [ts, tool, payload, state, storage, thought] = entry;
+
+        let html = '';
+
+        // 1. Current Thought
+        if (thought) {
+            html += `
+                <div class="state-section">
+                    <div class="state-title">🧠 Brain Thought</div>
+                    <div class="thought-block">${thought}</div>
+                </div>
+            `;
+        }
+
+        // 2. FSM State
+        html += `
+            <div class="state-section">
+                <div class="state-title">🚦 FSM State</div>
+                <div style="font-size: 1.2em; font-weight: bold; color: var(--accent)">${state}</div>
+            </div>
+        `;
+
+        // 3. Memory / Storage
+        html += `
+            <div class="state-section">
+                <div class="state-title">💾 Memory (Ice Storage)</div>
+                <div class="json-block">${JSON.stringify(storage, null, 2)}</div>
+            </div>
+        `;
+
+        // 4. Last Action Payload
+        html += `
+            <div class="state-section">
+                <div class="state-title">🔧 Last Tool Payload (${tool})</div>
+                <div class="json-block">${JSON.stringify(payload, null, 2)}</div>
+            </div>
+        `;
+
+        statePanel.innerHTML = html;
+    }
+
+    function updateView() {
+        const index = parseInt(slider.value);
+        stepCounter.innerText = `${index + 1}/${historyData.length}`;
+        
+        // 1. Render Chat up to this point
+        chatPanel.innerHTML = '';
+        // Only show items up to current index
+        const visibleSlice = historyData.slice(0, index + 1);
+        
+        visibleSlice.forEach((entry, idx) => {
+            const el = renderMessage(entry, idx);
+            chatPanel.appendChild(el);
+        });
+
+        // Scroll to bottom
+        chatPanel.scrollTop = chatPanel.scrollHeight;
+
+        // 2. Render State Panel for the EXACT current step
+        if (historyData[index]) {
+            renderState(historyData[index]);
+        }
+    }
+
+    function changeStep(delta) {
+        let newVal = parseInt(slider.value) + delta;
+        if (newVal >= 0 && newVal < historyData.length) {
+            slider.value = newVal;
+            updateView();
+        }
+    }
+
+    function togglePlay() {
+        if (isPlaying) {
+            pause();
+        } else {
+            play();
+        }
+    }
+
+    function play() {
+        isPlaying = true;
+        document.getElementById('playBtn').innerText = '⏸';
+        
+        // Get speed (steps per second)
+        let speed = parseFloat(document.getElementById('speedInput').value) || 1;
+        let intervalMs = 1000 / speed;
+
+        playInterval = setInterval(() => {
+            if (parseInt(slider.value) < historyData.length - 1) {
+                changeStep(1);
+            } else {
+                pause();
+            }
+        }, intervalMs);
+    }
+
+    function pause() {
+        isPlaying = false;
+        document.getElementById('playBtn').innerText = '▶';
+        clearInterval(playInterval);
+    }
+
+    // Start
+    init();
+
+</script>
+</body>
+</html>

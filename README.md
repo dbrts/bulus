@@ -90,6 +90,19 @@ print(f"Payload: {action.payload}")
 - **`src/bulus/runner`**: Executes actions returned by the brain.
 - **`src/bulus/storage`**: Manages the persistence of the Ice ledger.
 - **`src/bulus/engine`**: Orchestrates the loop.
+- **`viewer/`**: Contains the Time Travel Debugger visualization tools.
+
+## Visualization (Time Travel Viewer)
+
+Bulus includes a "Time Travel" HTML viewer for Jupyter Notebooks. It allows you to replay sessions with a slider, inspecting the state and memory at each step.
+
+```python
+from viewer import show_bulus_trace
+# Assuming you have a history list (e.g., from BulusRepo or a script)
+# history = [...] 
+
+show_bulus_trace(history)
+```
 
 ## License
 
