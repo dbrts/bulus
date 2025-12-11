@@ -36,11 +36,9 @@ class Action(BaseModel):
             return self
 
         # 2. Валидация логики 'update'
-        if self.tool_name == "update":
-            if "state" in data:
-                if data["state"] not in VALID_STATES_LIST:
-                    data["error"] = f"Invalid state '{data['state']}'. Allowed: {VALID_STATES_LIST}"
-                    del data["state"]
+        if self.tool_name == "update" and "state" in data and data["state"] not in VALID_STATES_LIST:
+            data["error"] = f"Invalid state '{data['state']}'. Allowed: {VALID_STATES_LIST}"
+            del data["state"]
 
         self._payload = data
         return self

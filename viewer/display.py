@@ -44,11 +44,8 @@ def show_bulus_trace(ice: List[Tuple[float, str, Dict[str, Any], str, Dict[str, 
     final_html = html_template.replace("var iceData = []; // DATA_INJECTION_POINT", injection_code)
 
     # Wrap in iframe-like container if needed, but direct HTML usually works better
-    # for sizing in modern Jupyter.
-    # However, to avoid CSS conflicts with the notebook itself, using an IFrame is safer,
-    # but constructing a raw HTML object with scoped styles is easier for now.
-    # Since we used specific class names and an iframe might be tricky with local file loading (not here since we inject string),
-    # let's try direct HTML injection first.
+    # for sizing in modern Jupyter. To avoid CSS conflicts, an iframe is safer;
+    # direct injection is simpler for this demo.
 
     # NOTE: Direct HTML injection in Jupyter shares the DOM.
     # To prevent global CSS pollution (like 'body { margin: 0 }'),
@@ -56,7 +53,8 @@ def show_bulus_trace(ice: List[Tuple[float, str, Dict[str, Any], str, Dict[str, 
     # Or simply relying on IFrame is the robust "Viewer" way.
 
     iframe_html = f"""
-    <iframe srcdoc="{final_html.replace('"', "&quot;")}" width="100%" height="{height}px" style="border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></iframe>
+    <iframe srcdoc="{final_html.replace('"', "&quot;")}" width="100%" height="{height}px"
+            style="border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></iframe>
     """
 
     display(HTML(iframe_html))

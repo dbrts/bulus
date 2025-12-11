@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 
@@ -37,10 +38,8 @@ class BulusRepo:
                 with open(legacy_path, encoding="utf-8") as f:
                     for line in f:
                         if line.strip():
-                            try:
+                            with contextlib.suppress(json.JSONDecodeError):
                                 ice.append(json.loads(line))
-                            except json.JSONDecodeError:
-                                pass
                 return self._normalize_doc(ice)
             return self._default_doc()
         with open(self.file_path, encoding="utf-8") as f:

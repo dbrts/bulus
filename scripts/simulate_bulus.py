@@ -1,9 +1,9 @@
 """
 Lightweight simulation of the Bulus blackboard:
-- Sessions (Ice) live in .bulus/sessions as JSON: {"metadata": {"status": ...}, "history": [...]}
-- Brain workers pick sessions with status=need_brain, craft an Action, and stash it as pending_action -> need_runner.
-- Runner workers pick status=need_runner, apply the pending Action via imperative_runner, and set status to still/need_brain/done.
-- A tiny "user" loop feeds canned replies when status=still to unblock the next brain step.
+- Sessions live in .bulus/sessions as JSON with {"metadata": {"status": ...}, "history": [...]}
+- Brain workers handle status=need_brain and stash pending_action -> need_runner
+- Runner workers apply pending_action (imperative_runner) and set status to still/need_brain/done
+- A tiny "user" loop feeds canned replies when status=still to unblock the next brain step
 
 Run:
     python scripts/simulate_bulus.py
@@ -24,11 +24,11 @@ SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from bulus.core.schemas import Action
-from bulus.core.states import AgentState
-from bulus.runner.worker import imperative_runner
-from bulus.storage import repository as repo_mod
-from bulus.storage.repository import BulusRepo
+from bulus.core.schemas import Action  # noqa: E402
+from bulus.core.states import AgentState  # noqa: E402
+from bulus.runner.worker import imperative_runner  # noqa: E402
+from bulus.storage import repository as repo_mod  # noqa: E402
+from bulus.storage.repository import BulusRepo  # noqa: E402
 
 # States that imply we're waiting for user input after runner applies an update
 WAITING_STATES = {
@@ -51,7 +51,7 @@ def _make_action(tool_name: str, payload: Dict[str, Any], thought: str) -> Actio
 
 def fake_brain(history: list) -> Action:
     """Deterministic brain: fills name -> age -> occupation -> test_ping."""
-    state = history[-1][3] if history else AgentState.HELLO.value
+    history[-1][3] if history else AgentState.HELLO.value
     storage = history[-1][4] if history else {}
 
     if "name" not in storage:

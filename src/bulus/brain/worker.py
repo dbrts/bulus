@@ -27,7 +27,7 @@ def stateless_brain(ice_history: IceHistory) -> Action:
     # Берем последние 15 записей для контекста
     recent_ice = ice_history[-15:]
 
-    for i, item in enumerate(recent_ice):
+    for _i, item in enumerate(recent_ice):
         try:
             tool = item[1]
             payload = item[2]
@@ -47,7 +47,7 @@ def stateless_brain(ice_history: IceHistory) -> Action:
                 items.append(f"[SYSTEM]: {', '.join(changes)}")
             elif tool == "test_ping":
                 items.append("[SYSTEM]: Ping Executed")
-        except:
+        except Exception:
             pass
 
     ice_text = "\n".join(items)
