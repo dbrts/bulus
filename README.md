@@ -1,5 +1,7 @@
 # Bulus
 
+![bulus_demo_1080](https://github.com/user-attachments/assets/c77be429-b112-40cc-a994-e014bdca1f83)
+
 **Time-Travel Debugging for Conversational AI.**
 
 Bulus is a deterministic framework designed specifically for building **conversational agents** that you can actually debug. It treats an agent's entire lifecycle as an immutable sequence of events (the "Ice" ledger), allowing you to **freeze, rewind, and fork** complex conversations to understand exactly *why* an agent made a specific decision.
