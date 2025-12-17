@@ -1,48 +1,54 @@
 # Bulus
 
-**Debug AI Agents like never before.**
+**Time-Travel Debugging for Conversational AI.**
 
-Bulus is a deterministic state management and replay engine for LLM agents, built on the **Stateless Brain** pattern. It treats agent sessions as an immutable memory ledger ("Ice"), enabling you to freeze, rewind, and fork production sessions for advanced debugging and analysis.
+Bulus is a deterministic framework designed specifically for building **conversational agents** that you can actually debug. It treats an agent's entire lifecycle as an immutable sequence of events (the "Ice" ledger), allowing you to **freeze, rewind, and fork** complex conversations to understand exactly *why* an agent made a specific decision.
+
+## Why Bulus?
+
+Building conversational agents is hard. Debugging them is harder.
+- **The Problem:** When an agent hallucinations 10 turns into a conversation, reproducing that exact state is often impossible. Traditional agents rely on mutable memory objects and hidden internal states that change unpredictably.
+- **The Solution:** Bulus removes mutable state entirely from the agent's logic.
 
 ## Core Concepts
 
 ### 1. The Stateless Brain
-In Bulus, the agent has no internal mutable state. Its "brain" is a pure function that takes the entire session Ice ledger as input and returns the next action.
+In Bulus, the agent is a **pure function**. It has no internal memory. Instead, its "brain" takes the entire conversation history (the ledger) as input and outputs a single action.
 
 ```python
-Action = f(Ice)
+Action = f(Conversation_History)
 ```
 
-This ensures that for any given Ice ledger, the agent's decision is deterministic (assuming the LLM's temperature is 0 or consistent).
+This guarantees **determinism**: given the same history, the agent will always make the same decision (assuming a constant LLM temperature).
 
-### 2. Ice: The Immutable Ledger
-The agent's memory is not a black box vector store or a mutable JSON object. It is a linear, append-only log of events called "Ice".
+### 2. Ice: The Conversation Ledger
+We call the agent's memory **"Ice"**. It is a linear, append-only log of every event in the conversation.
 
-Each entry in the Ice is a tuple:
+Each entry captures the exact context of a moment:
 ```python
 (
     timestamp,   # When it happened
-    tool_name,   # What tool triggered the event (e.g., 'user_said', 'update')
-    payload,     # Data associated with the tool
-    state,       # The FSM state of the agent AFTER this event
-    storage,     # The agent's memory/variables AFTER this event
-    thought      # The reasoning behind the action (if applicable)
+    tool_name,   # The action taken (e.g., 'user_said', 'search_db')
+    payload,     # Data (e.g., the user's message, search results)
+    state,       # The FSM state AFTER this event
+    storage,     # Variables/Memory snapshot AFTER this event
+    thought      # The agent's reasoning (Chain of Thought)
 )
 ```
 
 ### 3. Time Travel & Forking
-Because the state is fully reconstructed from Ice, you can:
-- **Rewind:** Slice the Ice list to go back to any point in time.
-- **Fork:** Create a new branch of the conversation by appending a different event to past Ice.
-- **Debug:** Replay a failed production session in a local environment (like a Jupyter Notebook) to understand exactly why the agent made a specific decision.
+Because the entire state is reconstructed from the Ice ledger, you can:
+- **Rewind:** Slice the ledger to go back to turn #5.
+- **Fork:** Insert a different user response or tool output at turn #5 to create a parallel conversation universe.
+- **Debug:** Replay a production failure in a local environment (like a Jupyter Notebook) to inspect the agent's "thought" process step-by-step.
 
 ## Installation
 
 ```bash
 git clone https://github.com/dbrts/bulus.git
 cd bulus
-uv sync                 # creates .venv and installs runtime deps
-# For development/tests (ruff/pytest):
+uv sync                 # Creates .venv and installs dependencies
+# For development (tests/linting):
 # uv sync --extra dev
 ```
 
@@ -55,58 +61,55 @@ OPENAI_API_KEY=sk-...
 OPENAI_MODEL_NAME=gpt-4o-mini  # Optional, defaults to gpt-4o-mini
 ```
 
-## Quick Start
+## Quick Start: A Simple Conversation
 
-Here is a simple example of how the Stateless Brain works (derived from `scripts/run_scenarios.py`):
+Here is how a basic conversational loop works using the Stateless Brain.
 
 ```python
 import time
 from bulus.brain.worker import stateless_brain
 from bulus.core.states import AgentState
-from bulus.runner.tools import apply_update
 
-# 1. Define an initial Ice ledger (e.g., user greets the agent)
+# 1. Initialize the Ledger ("Ice") with the start of a conversation
 t0 = time.time()
 ice = [
+    # The agent decides to ask for the name
     (t0, "send_message", {"text": "Hello! What is your name?"}, AgentState.ASK_NAME.value, {}, "Init"),
+    # The user responds
     (t0 + 1, "user_said", "I am Alice", AgentState.ASK_NAME.value, {}, None),
 ]
 
-# 2. Call the brain to get the next action
+# 2. Invoke the Brain
+# The brain reads the history and decides what to do next.
 action = stateless_brain(ice)
 
 print(f"Thought: {action.thought}")
-print(f"Tool:    {action.tool_name}")
-print(f"Payload: {action.payload}")
+print(f"Action:  {action.tool_name}")
+print(f"Data:    {action.payload}")
 
 # Expected Output:
-# Thought: The user provided their name. I should update my memory and move to the next state.
-# Tool:    update
-# Payload: {'state': 'ask_age', 'memory': {'name': 'Alice'}}
+# Thought: The user provided their name 'Alice'. I need to update my memory.
+# Action:  update
+# Data:    {'state': 'ask_age', 'memory': {'name': 'Alice'}}
+```
+
+## Visualization
+
+Bulus includes a **Time Travel Viewer** for Jupyter Notebooks. It provides a visual slider to replay the conversation, inspecting the exact state and memory changes at every single turn.
+
+```python
+from viewer import show_bulus_trace
+# Pass your Ice ledger to the viewer
+show_bulus_trace(ice)
 ```
 
 ## Project Structure
 
-- **`src/bulus/brain`**: The decision-making logic (`stateless_brain`). Prompts the LLM.
-- **`src/bulus/core`**: Data schemas (`IceEntry`, `Action`) and State Machine definitions.
-- **`src/bulus/runner`**: Executes actions returned by the brain.
-- **`src/bulus/storage`**: Manages the persistence of the Ice ledger.
-- **`src/bulus/engine`**: Orchestrates the loop.
-- **`viewer/`**: Contains the Time Travel Debugger visualization tools.
-- **`.bulus/sessions/<id>.json`**: Per-session JSON with `metadata` (e.g., `status: need_brain | need_runner | still`) and `history` (list of Ice entries).
-- Linting/formatting: `uv run ruff check .` and `uv run ruff format .` (requires `uv sync --extra dev`).
-
-## Visualization (Time Travel Viewer)
-
-Bulus includes a "Time Travel" HTML viewer for Jupyter Notebooks. It allows you to replay sessions with a slider, inspecting the state and memory at each step.
-
-```python
-from viewer import show_bulus_trace
-# Assuming you have an Ice list (e.g., from BulusRepo or a script)
-# ice = [...] 
-
-show_bulus_trace(ice)
-```
+- **`src/bulus/brain`**: The cognitive engine. Contains prompts and the `stateless_brain` logic.
+- **`src/bulus/core`**: Schemas for `IceEntry`, `Action`, and State Machine definitions.
+- **`src/bulus/engine`**: Orchestrates the main conversational loop.
+- **`src/bulus/storage`**: Manages persistence of the Ice ledger.
+- **`viewer/`**: HTML/JS tools for visualizing trace logs.
 
 ## License
 
